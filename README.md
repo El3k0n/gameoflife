@@ -120,4 +120,4 @@ The engine keeps cells in contiguous buffers and computes each generation in par
 
 ## License
 
-No license has been chosen yet: all rights reserved by the author.
+Released under the [MIT License](LICENSE).
