@@ -51,7 +51,9 @@ jobs:
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create "$GITHUB_REF_NAME" Genesis.zip
-          --repo "$GITHUB_REPOSITORY" --verify-tag --notes-from-tag
-          --title "Genesis ${GITHUB_REF_NAME#v}"
+        # The notes are the annotated tag's message, read through the API since nothing is checked out.
+        run: |
+          tag=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$GITHUB_REF_NAME" --jq .object.sha)
+          gh api "repos/$GITHUB_REPOSITORY/git/tags/$tag" --jq .message > notes.md
+          gh release create "$GITHUB_REF_NAME" Genesis.zip --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --notes-file notes.md --title "Genesis ${GITHUB_REF_NAME#v}"
