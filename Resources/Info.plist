@@ -31,7 +31,7 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>John H. Conway's Game of Life</string>
+	<string>© 2026 Diego Pignattini</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
