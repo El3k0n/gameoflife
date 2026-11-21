@@ -234,7 +234,7 @@ struct RulePanel: View {
             }
 
             HStack {
-                TextField("B3/S23", text: $model.ruleText)
+                TextField("Notation", text: $model.ruleText, prompt: Text("B3/S23"))
                     .font(.system(.body, design: .monospaced))
                     .textFieldStyle(.roundedBorder)
                     .onSubmit { model.applyRuleText() }
