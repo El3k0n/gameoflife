@@ -9,33 +9,49 @@ jobs:
   macos:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
-      - name: Toolchain version
+      - uses: actions/checkout@v7
+      - name: Toolchain
         run: swift --version && sw_vers
       - name: Engine tests
         run: swift test
       - name: App bundle (universal)
         run: ./scripts/build-app.sh universal
-      - name: Verify bundle
+      - name: Check the bundle
         run: |
           plutil -lint build/Genesis.app/Contents/Info.plist
           lipo -info build/Genesis.app/Contents/MacOS/Genesis
           codesign --verify --verbose build/Genesis.app
-      - name: Launch smoke test and screenshot
+      - name: Launch it
+        # Sets up a soup, runs 100 generations, saves a picture of its window and quits.
+        timeout-minutes: 3
         run: |
-          open build/Genesis.app
-          sleep 12
-          pgrep -x Genesis
-          screencapture -x screenshot.png || true
-          pkill -x Genesis || true
-      - uses: actions/upload-artifact@v4
+          build/Genesis.app/Contents/MacOS/Genesis --snapshot launch.png --generations 100 --size 960x640
+          test "$(stat -f %z launch.png)" -gt 20000
+      - uses: actions/upload-artifact@v7
         with:
-          name: screenshot
-          path: screenshot.png
-          if-no-files-found: ignore
+          name: launch-screenshot
+          path: launch.png
       - name: Zip
         run: ditto -c -k --keepParent build/Genesis.app Genesis.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Genesis-macOS
           path: Genesis.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: macos
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: Genesis-macOS
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" Genesis.zip
+          --repo "$GITHUB_REPOSITORY" --verify-tag --notes-from-tag
+          --title "Genesis ${GITHUB_REF_NAME#v}"
