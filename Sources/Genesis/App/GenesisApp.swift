@@ -6,6 +6,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Needed when the executable is launched outside an .app bundle (e.g. `swift run`).
         NSApp.setActivationPolicy(.regular)
         NSApp.activate()
+        if #available(macOS 14.4, *), let snapshot = Snapshot(arguments: CommandLine.arguments) {
+            Task { await snapshot.run() }
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

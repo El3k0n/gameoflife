@@ -316,12 +316,12 @@ final class LifeModel {
     }
 
     /// Fills the selection (or the whole world) with a random soup.
-    func randomFill() {
+    func randomFill(seed: UInt64 = .random(in: 0...UInt64.max)) {
         syncSettings()
         engine.checkpoint()
         let full = GridRect(x: 0, y: 0, width: engine.width, height: engine.height)
         let rect = selection ?? full
-        engine.randomize(in: rect, density: density, symmetry: symmetry, seed: UInt64.random(in: 0...UInt64.max))
+        engine.randomize(in: rect, density: density, symmetry: symmetry, seed: seed)
         if selection == nil { engine.resetGeneration() }
         markEdited()
         publishStats(force: true)
